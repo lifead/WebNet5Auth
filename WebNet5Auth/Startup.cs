@@ -28,7 +28,7 @@ namespace WebNet5Auth
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddDatabaseDeveloperPageExceptionFilter();
+            //services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -41,11 +41,11 @@ namespace WebNet5Auth
             {
                 options.SignIn.RequireConfirmedAccount = false; // Требование, чтобы был подтвержден Account
 
-                options.Password.RequiredLength = 8;            // Минимальная длина парооля
-                options.Password.RequireDigit = true;           // Пароль должен содержать цифры
-                options.Password.RequireUppercase = true;       // Пароль должен содержать заглавные буквы
-                options.Password.RequireLowercase = true;       // Пароль должен содержать строчные буквы
-                options.Password.RequireNonAlphanumeric = true; // Пароль должен содержать не буквенно-цифровые символы
+                options.Password.RequiredLength = 3;            // Минимальная длина парооля
+                options.Password.RequireDigit = false;           // Пароль должен содержать цифры
+                options.Password.RequireUppercase = false;       // Пароль должен содержать заглавные буквы
+                options.Password.RequireLowercase = false;       // Пароль должен содержать строчные буквы
+                options.Password.RequireNonAlphanumeric = false; // Пароль должен содержать не буквенно-цифровые символы
 
                 options.User.RequireUniqueEmail = false;         // Требование уникальности Email
 
@@ -61,7 +61,7 @@ namespace WebNet5Auth
                 options.Cookie.HttpOnly = true;                         // Передавать Cookie только по пртоколу http
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);          // Время существования Cookie
 
-                options.LoginPath = "/Identity/Account/Login";          // Если пользователь не авторизирован, то перенаправить его на указанную страницу
+                options.LoginPath = "/Account/Login";          // Если пользователь не авторизирован, то перенаправить его на указанную страницу
             });
         }
 
