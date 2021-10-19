@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WebNet5Auth.Data;
 
 namespace WebNet5Auth
@@ -27,17 +22,18 @@ namespace WebNet5Auth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
-            //services.AddDatabaseDeveloperPageExceptionFilter();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddTransient<Identity_Initialize>();
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             // пример конфигурации системы Identity
-            services.Configure<IdentityOptions>(options => 
+            services.Configure<IdentityOptions>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false; // Требование, чтобы был подтвержден Account
 
@@ -61,13 +57,18 @@ namespace WebNet5Auth
                 options.Cookie.HttpOnly = true;                         // Передавать Cookie только по пртоколу http
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);          // Время существования Cookie
 
-                options.LoginPath = "/Account/Login";          // Если пользователь не авторизирован, то перенаправить его на указанную страницу
+                options.LoginPath = "/Account/Login";                   // Если пользователь не авторизирован, то перенаправить его на указанную страницу
+                options.AccessDeniedPath = "/Account/AccessDenied";      // Если отказано в доступе
             });
+
+         
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Identity_Initialize init)
         {
+            init.Initialize();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -91,9 +92,8 @@ namespace WebNet5Auth
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
+                   name: "default",
+                   pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

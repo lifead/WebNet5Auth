@@ -16,5 +16,8 @@ namespace WebNet5Auth.ViewModels.Identity
 
         [HiddenInput(DisplayValue = false)]
         public string ReturnUrl { get; set; }
+
+        [Display(Name = "Email")]
+        public string Email { get; set; }
     }
 }

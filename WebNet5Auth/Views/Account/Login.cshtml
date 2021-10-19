@@ -5,9 +5,11 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-controller="Account" asp-action="Login" method="post" asp-antiforgery="true" >
+        <form asp-controller="Account" asp-action="Login" method="post" asp-antiforgery="true">
             <h4>Log in</h4>
             <hr>
+            
+            @Html.HiddenFor(model => model.ReturnUrl)
 
             <div class="form-group">
                 <input class="form-control" asp-for="UserName" placeholder="Имя пользователя">
