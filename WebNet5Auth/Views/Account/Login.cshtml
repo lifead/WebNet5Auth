@@ -1,0 +1,30 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Account" asp-action="Login" method="post" asp-antiforgery="true" >
+            <h4>Log in</h4>
+            <hr>
+
+            <div class="form-group">
+                <input class="form-control" asp-for="UserName" placeholder="Имя пользователя">
+                <span asp-validation-summary="UserName"></span>
+            </div>
+            <div class="form-group">
+                <input class="form-control" asp-for="Password" placeholder="Пароль">
+                <span asp-validation-summary="Password"></span>
+            </div>
+            <div class="form-group">
+                <button id="login-submit" type="submit" class="btn btn-primary">Log in</button>
+            </div>
+            <div class="form-group">
+                <p>
+                    <a asp-controller="Account" asp-action="Register">Register as a new user</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>

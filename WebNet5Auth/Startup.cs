@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
@@ -27,14 +27,42 @@ namespace WebNet5Auth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
+            //services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            // пример конфигурации системы Identity
+            services.Configure<IdentityOptions>(options => 
+            {
+                options.SignIn.RequireConfirmedAccount = false; // Требование, чтобы был подтвержден Account
+
+                options.Password.RequiredLength = 3;            // Минимальная длина парооля
+                options.Password.RequireDigit = false;           // Пароль должен содержать цифры
+                options.Password.RequireUppercase = false;       // Пароль должен содержать заглавные буквы
+                options.Password.RequireLowercase = false;       // Пароль должен содержать строчные буквы
+                options.Password.RequireNonAlphanumeric = false; // Пароль должен содержать не буквенно-цифровые символы
+
+                options.User.RequireUniqueEmail = false;         // Требование уникальности Email
+
+                options.Lockout.AllowedForNewUsers = true;       // Новые пользователи разблокированы
+                options.Lockout.MaxFailedAccessAttempts = 1;     // Максимальное кол-во вводов не корректных пароля до блокировки
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(15);     // Время на которое блокируется уч. запись при неверно введенном пароле
+            });
+
+            // пример конфигурации Cookie
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = "WebNet5Auth_Cookie";             // название Cookie
+                options.Cookie.HttpOnly = true;                         // Передавать Cookie только по пртоколу http
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);          // Время существования Cookie
+
+                options.LoginPath = "/Account/Login";          // Если пользователь не авторизирован, то перенаправить его на указанную страницу
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,6 +84,7 @@ namespace WebNet5Auth
 
             app.UseRouting();
 
+            // включение системы аутентификации и авторизации
             app.UseAuthentication();
             app.UseAuthorization();
 
