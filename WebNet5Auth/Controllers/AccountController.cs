@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebNet5Auth.Models.Identity;
 using WebNet5Auth.ViewModels.Identity;
 
 namespace WebNet5Auth.Controllers
@@ -34,7 +35,10 @@ namespace WebNet5Auth.Controllers
             var register_result = await userManager.CreateAsync(user, Model.Password);
             if (register_result.Succeeded)
             {
+                await userManager.AddToRoleAsync(user, DefaultRoles.DefaultUsers);
+
                 await signInManager.SignInAsync(user, false);
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -45,7 +49,7 @@ namespace WebNet5Auth.Controllers
             return View(Model);
         }
 
-        public IActionResult Login() => View(new LoginViewModel());
+        public IActionResult Login(string ReturnUrl) => View(new LoginViewModel { ReturnUrl = ReturnUrl });
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel Model)
@@ -60,6 +64,8 @@ namespace WebNet5Auth.Controllers
 
             if (login_result.Succeeded)
             {
+                if (Url.IsLocalUrl(Model.ReturnUrl))
+                    return Redirect(Model.ReturnUrl);
                 return RedirectToAction("Index", "Home");
             }
 
@@ -74,5 +80,7 @@ namespace WebNet5Auth.Controllers
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
+        public IActionResult AccessDenied(string ReturnUrl) => View("AccessDenied", ReturnUrl);
     }
 }
